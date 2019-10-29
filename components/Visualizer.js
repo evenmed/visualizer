@@ -6,17 +6,17 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.canvasRef = React.createRef();
-    this.audioRef = React.createRef();
   }
 
-  setUpAudio = () => {
-    if (!(this.canvasRef.current && this.audioRef.current)) return;
+  setUpAudio = async () => {
+    if (!this.canvasRef.current) return;
+
     this.setState({ started: true });
-    const audio = this.audioRef.current;
-    audio.load();
-    audio.play();
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
     var context = new AudioContext();
-    var src = context.createMediaElementSource(audio);
+    var src = context.createMediaStreamSource(stream);
     var analyser = context.createAnalyser();
 
     var canvas = this.canvasRef.current;
@@ -25,7 +25,6 @@ class Home extends Component {
     var ctx = canvas.getContext("2d");
 
     src.connect(analyser);
-    analyser.connect(context.destination);
 
     analyser.fftSize = 256;
 
@@ -89,37 +88,7 @@ class Home extends Component {
 
       ctx.restore();
     }
-
-    audio.play();
     renderFrame();
-  };
-
-  createLightning = () => {
-    var segmentHeight = groundHeight - center.y;
-    var lightning = [];
-    lightning.push({ x: center.x, y: center.y });
-    lightning.push({
-      x: Math.random() * (size - 100) + 50,
-      y: groundHeight + (Math.random() - 0.9) * 50,
-    });
-    var currDiff = maxDifference;
-    while (segmentHeight > minSegmentHeight) {
-      var newSegments = [];
-      for (var i = 0; i < lightning.length - 1; i++) {
-        var start = lightning[i];
-        var end = lightning[i + 1];
-        var midX = (start.x + end.x) / 2;
-        var newX = midX + (Math.random() * 2 - 1) * currDiff;
-        newSegments.push(start, { x: newX, y: (start.y + end.y) / 2 });
-      }
-
-      newSegments.push(lightning.pop());
-      lightning = newSegments;
-
-      currDiff /= roughness;
-      segmentHeight /= 2;
-    }
-    return lightning;
   };
 
   render() {
@@ -129,11 +98,6 @@ class Home extends Component {
           <button onClick={this.setUpAudio}>Start!</button>
         )}
         <canvas ref={this.canvasRef}></canvas>
-        <audio
-          src="/billy.mp3"
-          onLoad={this.setUpAudio}
-          ref={this.audioRef}
-        ></audio>
       </>
     );
   }
