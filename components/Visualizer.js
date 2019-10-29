@@ -26,18 +26,12 @@ class Home extends Component {
 
     src.connect(analyser);
 
-    analyser.fftSize = 256;
+    analyser.fftSize = 128;
 
     var bufferLength = analyser.frequencyBinCount;
 
-    var dataArray = new Uint8Array(
-      new Uint8Array(bufferLength).reduce((accum, buff, i) => {
-        if (i % 3) return [...accum, buff];
-
-        return accum;
-      }, [])
-    );
-    console.log(bufferLength, dataArray.length);
+    var dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
 
     var WIDTH = canvas.width;
     var HEIGHT = canvas.height;
@@ -47,21 +41,23 @@ class Home extends Component {
     let yCoord = 0;
     let angle = 0;
     const radius = 100;
-    const circunference = Math.PI * radius * 2;
     const rad_step = (Math.PI * 2) / dataArray.length;
-    const barWidth = circunference / dataArray.length;
+    const color = "hsl(180, 80%, 80%)";
+    ctx.fillStyle = "hsla(0, 0%, 10%, 0.2)";
+    ctx.strokeStyle = color;
+    ctx.shadowColor = color;
+    ctx.lineWidth = 1;
 
-    function renderFrame() {
+    const renderFrame = () => {
       requestAnimationFrame(renderFrame);
-
-      angle = 0;
-      xCoord = 0;
-      yCoord = 0;
-
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = "#000";
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = "source-over";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowBlur = 15;
+
       ctx.save();
       ctx.translate(WIDTH / 2, HEIGHT / 2);
 
@@ -70,16 +66,16 @@ class Home extends Component {
         xCoord = radius * Math.cos(angle);
         yCoord = radius * Math.sin(angle);
         ctx.translate(xCoord, yCoord);
+        ctx.rotate(-Math.PI / 2 + angle);
 
         barHeight = dataArray[i];
 
-        var r = barHeight + 25 * (i / bufferLength);
-        var g = 250 * (i / bufferLength);
-        var b = 50;
-
-        ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-        ctx.rotate(-Math.PI / 2 + angle);
-        ctx.fillRect(0, 0, barWidth, barHeight);
+        const lightning = this.createLightning(barHeight, 17, 5, 2.2);
+        ctx.beginPath();
+        for (var j = 0; j < lightning.length; j++) {
+          ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+        }
+        ctx.stroke();
 
         angle += rad_step;
 
@@ -87,8 +83,45 @@ class Home extends Component {
       }
 
       ctx.restore();
-    }
+    };
     renderFrame();
+  };
+
+  createLightning = (height, maxDifference, minSegmentHeight, roughness) => {
+    // The main segment's height
+    var segmentHeight = height - 20;
+    var lightning = [];
+    // The start and the end position of the lightning.
+    lightning.push({ x: 0, y: 0 });
+    lightning.push({
+      x: maxDifference * (0.5 - Math.random()),
+      y: height + maxDifference * (0.5 - Math.random()),
+    });
+    // This is important so we don't change the global one.
+    var currDiff = maxDifference;
+    while (segmentHeight > minSegmentHeight) {
+      // This uses the double buffering pattern
+      var newSegments = [];
+      for (var i = 0; i < lightning.length - 1; i++) {
+        // The start and the end position of the current segment
+        var start = lightning[i];
+        var end = lightning[i + 1];
+        // "midX" is the average X position of the segment
+        var midX = (start.x + end.x) / 2;
+        var newX = midX + (Math.random() * 2 - 1) * currDiff;
+        // Add the start and the middle point to the new segment list
+        // Because the end position is going to be added again in the next iteration
+        // we don't need to add that here.
+        newSegments.push(start, { x: newX, y: (start.y + end.y) / 2 });
+      }
+      // Add the last point of the lightning to the segments.
+      newSegments.push(lightning.pop());
+      lightning = newSegments;
+
+      currDiff /= roughness;
+      segmentHeight /= 2;
+    }
+    return lightning;
   };
 
   render() {
