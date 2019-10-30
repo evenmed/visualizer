@@ -53,7 +53,7 @@ class Home extends Component {
     const radius = 100;
     const rad_step = (Math.PI * 2) / dataArray.length;
     const color = "hsl(180, 80%, 80%)";
-    ctx.fillStyle = "hsla(0, 0%, 10%, 0.2)";
+    ctx.fillStyle = "hsla(0, 0%, 5%, 0.2)";
     ctx.strokeStyle = color;
     ctx.shadowColor = color;
     ctx.lineWidth = 1;
