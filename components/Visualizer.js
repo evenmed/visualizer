@@ -53,7 +53,9 @@ class Home extends Component {
     const radius = 100;
     const rad_step = (Math.PI * 2) / dataArray.length;
     const color = "hsl(180, 80%, 80%)";
-    ctx.fillStyle = "hsla(0, 0%, 10%, 0.2)";
+    const img = new Image();
+    img.src = "/space.jpeg";
+    ctx.fillStyle = "hsla(0, 0%, 5%, 0.2)";
     ctx.strokeStyle = color;
     ctx.shadowColor = color;
     ctx.lineWidth = 1;
@@ -64,7 +66,16 @@ class Home extends Component {
 
       ctx.shadowBlur = 0;
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      if (img.complete) {
+        ctx.save();
+        var ptrn = ctx.createPattern(img, "repeat");
+        ctx.fillStyle = ptrn;
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.restore();
+      } else {
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
       ctx.globalCompositeOperation = "lighter";
       ctx.shadowBlur = 15;
 
