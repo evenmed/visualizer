@@ -80,7 +80,12 @@ class Home extends Component {
 
         barHeight = dataArray[i];
 
-        const lightning = this.createLightning(barHeight, 17, 5, 2.2);
+        const lightning = this.createLightning(
+          barHeight,
+          barHeight / 8,
+          5,
+          2.2
+        );
         ctx.beginPath();
         for (var j = 0; j < lightning.length; j++) {
           ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
