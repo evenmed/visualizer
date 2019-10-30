@@ -70,7 +70,7 @@ class Home extends Component {
         ctx.save();
         var ptrn = ctx.createPattern(img, "repeat");
         ctx.fillStyle = ptrn;
-        ctx.globalAlpha = 0.25;
+        ctx.globalAlpha = 0.2;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
         ctx.restore();
       } else {
