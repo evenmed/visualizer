@@ -49,7 +49,7 @@ class Home extends Component {
     var barHeight;
     let xCoord = 0;
     let yCoord = 0;
-    let angle = 0;
+    let angle = -Math.PI / 2;
     const radius = 100;
     const rad_step = (Math.PI * 2) / dataArray.length;
     const color = "hsl(180, 80%, 80%)";
