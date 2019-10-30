@@ -11,6 +11,16 @@ class Home extends Component {
   setUpAudio = async () => {
     if (!this.canvasRef.current) return;
 
+    const AudioContext =
+      window.AudioContext || // Default
+      window.webkitAudioContext || // Safari and old versions of Chrome
+      false;
+
+    if (!AudioContext) {
+      alert("Your browser doesn't support the features needed for this");
+      return;
+    }
+
     this.setState({ started: true });
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -68,7 +78,7 @@ class Home extends Component {
         ctx.translate(xCoord, yCoord);
         ctx.rotate(-Math.PI / 2 + angle);
 
-        barHeight = dataArray[i];
+        barHeight = dataArray[i] * 1.5;
 
         const lightning = this.createLightning(barHeight, 17, 5, 2.2);
         ctx.beginPath();
