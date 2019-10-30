@@ -78,7 +78,7 @@ class Home extends Component {
         ctx.translate(xCoord, yCoord);
         ctx.rotate(-Math.PI / 2 + angle);
 
-        barHeight = dataArray[i] * 1.5;
+        barHeight = dataArray[i];
 
         const lightning = this.createLightning(barHeight, 17, 5, 2.2);
         ctx.beginPath();
