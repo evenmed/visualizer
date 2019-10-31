@@ -22,19 +22,26 @@ class Home extends Component {
     else if (key == 50) this.setState({ mode: "top" });
     else if (key == 51) this.setState({ mode: "bottom" });
     else if (key == 52) this.setState({ mode: "mix" });
+    else if (key == 53) this.setState({ mode: "mix2" });
     else if (key == 103 || key == 71)
-      this.setState({ color: "hsl(120, 100%, 77%)" });
+      // Green
+      this.setState({ color: "hsl(125, 100%, 73%)" });
     else if (key == 119 || key == 88)
+      // White (original)
       this.setState({ color: "hsl(180, 80%, 80%)" });
     else if (key == 114 || key == 82)
+      // Red
       this.setState({ color: "hsl(0, 100%, 77%)" });
     else if (key == 98 || key == 66)
-      this.setState({ color: "hsl(180, 100%, 75%)" });
+      // Blue
+      this.setState({ color: "hsl(190, 100%, 75%)" });
+    else if (key == 112 || key == 80)
+      // Purple
+      this.setState({ color: "hsl(250, 100%, 75%)" });
+    else if (key == 121 || key == 89)
+      // Yellow
+      this.setState({ color: "hsl(55, 100%, 75%)" });
   };
-
-  componentDidUpdate(_oldProps, oldState) {
-    // if (oldState.mode != this.state.mode) this.setUpAudio();
-  }
 
   setUpAudio = async () => {
     if (!this.canvasRef.current) return;
@@ -60,6 +67,15 @@ class Home extends Component {
     var analyser = context.createAnalyser();
 
     var canvas = this.canvasRef.current;
+    if (canvas.requestFullscreen) {
+      await canvas.requestFullscreen();
+    } else if (canvas.msRequestFullscreen) {
+      await canvas.msRequestFullscreen();
+    } else if (canvas.mozRequestFullScreen) {
+      await canvas.mozRequestFullScreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      await canvas.webkitRequestFullscreen();
+    }
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     var ctx = canvas.getContext("2d");
@@ -138,7 +154,7 @@ class Home extends Component {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 3;
+          barHeight = dataArray[i] * 2;
 
           const lightning = this.createLightning(
             barHeight,
@@ -165,7 +181,7 @@ class Home extends Component {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 3;
+          barHeight = dataArray[i] * 2;
 
           const lightning = this.createLightning(
             barHeight,
@@ -193,7 +209,7 @@ class Home extends Component {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 3;
+          barHeight = dataArray[i] * 2;
 
           const lightning = this.createLightning(
             barHeight,
@@ -213,6 +229,39 @@ class Home extends Component {
           ctx.stroke();
 
           xCoord += barWidth;
+
+          ctx.restore();
+        }
+      } else if (mode === "mix2") {
+        const barWidth = HEIGHT / bufferLength;
+        xCoord = 0;
+        yCoord = 0;
+
+        for (var i = 0; i < bufferLength; i++) {
+          ctx.save();
+          ctx.translate(xCoord, yCoord);
+
+          barHeight = dataArray[i] * 3;
+
+          const lightning = this.createLightning(
+            barHeight,
+            barHeight / 8,
+            5,
+            2.2
+          );
+          if (i % 2 === 0) {
+            ctx.rotate(-Math.PI / 2);
+          } else {
+            ctx.translate(WIDTH, 0);
+            ctx.rotate(Math.PI / 2);
+          }
+          ctx.beginPath();
+          for (var j = 0; j < lightning.length; j++) {
+            ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          }
+          ctx.stroke();
+
+          yCoord += barWidth;
 
           ctx.restore();
         }
