@@ -23,7 +23,6 @@ class Home extends Component {
   }
 
   handleKeyPress = ({ keyCode: key }) => {
-    console.log(key);
     if (key == 49) this.setState({ mode: "radial" });
     else if (key == 50) this.setState({ mode: "top" });
     else if (key == 51) this.setState({ mode: "bottom" });
