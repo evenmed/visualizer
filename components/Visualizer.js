@@ -1,5 +1,11 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 
+const StyledWrap = styled.div`
+  canvas {
+    cursor: none;
+  }
+`;
 class Home extends Component {
   state = { started: false, mode: "radial", color: "hsl(180, 80%, 80%)" };
 
@@ -313,12 +319,12 @@ class Home extends Component {
 
   render() {
     return (
-      <div>
+      <StyledWrap>
         {!this.state.started && (
           <button onClick={this.setUpAudio}>Start!</button>
         )}
         <canvas ref={this.canvasRef}></canvas>
-      </div>
+      </StyledWrap>
     );
   }
 }
