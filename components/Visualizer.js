@@ -1,11 +1,37 @@
 import React, { Component } from "react";
 
 class Home extends Component {
-  state = { started: false };
+  state = { started: false, mode: "radial", color: "hsl(180, 80%, 80%)" };
 
   constructor(props) {
     super(props);
     this.canvasRef = React.createRef();
+  }
+
+  componentDidMount() {
+    window.addEventListener("keypress", this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("keypress", this.handleKeyPress);
+  }
+
+  handleKeyPress = ({ keyCode: key }) => {
+    console.log(key);
+    if (key == 49) this.setState({ mode: "radial" });
+    else if (key == 50) this.setState({ mode: "top" });
+    else if (key == 118 || key == 86)
+      this.setState({ color: "hsl(120, 100%, 77%)" });
+    else if (key == 98 || key == 66)
+      this.setState({ color: "hsl(180, 80%, 80%)" });
+    else if (key == 114 || key == 82)
+      this.setState({ color: "hsl(0, 100%, 77%)" });
+    else if (key == 97 || key == 65)
+      this.setState({ color: "hsl(180, 100%, 75%)" });
+  };
+
+  componentDidUpdate(_oldProps, oldState) {
+    // if (oldState.mode != this.state.mode) this.setUpAudio();
   }
 
   setUpAudio = async () => {
@@ -22,6 +48,8 @@ class Home extends Component {
     }
 
     this.setState({ started: true });
+
+    window.focus();
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -46,72 +74,95 @@ class Home extends Component {
     var WIDTH = canvas.width;
     var HEIGHT = canvas.height;
 
-    var barHeight;
+    let barHeight;
     let xCoord = 0;
     let yCoord = 0;
     let angle = -Math.PI / 2;
     const radius = 100;
     const rad_step = (Math.PI * 2) / dataArray.length;
-    const color = "hsl(180, 80%, 80%)";
     const img = new Image();
     img.src = "/space.jpeg";
     ctx.fillStyle = "hsla(0, 0%, 5%, 0.2)";
-    ctx.strokeStyle = color;
-    ctx.shadowColor = color;
     ctx.lineWidth = 1;
 
     const renderFrame = () => {
+      const { color, mode } = this.state;
+      ctx.strokeStyle = color;
+      ctx.shadowColor = color;
       requestAnimationFrame(renderFrame);
       analyser.getByteFrequencyData(dataArray);
 
       ctx.shadowBlur = 0;
       ctx.globalCompositeOperation = "source-over";
-      if (img.complete) {
-        ctx.save();
-        var ptrn = ctx.createPattern(img, "repeat");
-        ctx.fillStyle = ptrn;
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
-        ctx.restore();
-      } else {
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
-      }
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.globalCompositeOperation = "lighter";
       ctx.shadowBlur = 15;
 
       ctx.save();
-      ctx.translate(WIDTH / 2, HEIGHT / 2);
+      if (mode === "radial") {
+        ctx.translate(WIDTH / 2, HEIGHT / 2);
 
-      for (var i = 0; i < bufferLength; i++) {
-        ctx.save();
-        xCoord = radius * Math.cos(angle);
-        yCoord = radius * Math.sin(angle);
-        ctx.translate(xCoord, yCoord);
-        ctx.rotate(-Math.PI / 2 + angle);
+        for (var i = 0; i < bufferLength; i++) {
+          ctx.save();
+          xCoord = radius * Math.cos(angle);
+          yCoord = radius * Math.sin(angle);
+          ctx.translate(xCoord, yCoord);
+          ctx.rotate(-Math.PI / 2 + angle);
 
-        barHeight = dataArray[i];
+          barHeight = dataArray[i];
 
-        const lightning = this.createLightning(
-          barHeight,
-          barHeight / 8,
-          5,
-          2.2
-        );
-        ctx.beginPath();
-        for (var j = 0; j < lightning.length; j++) {
-          ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          const lightning = this.createLightning(
+            barHeight,
+            barHeight / 8,
+            5,
+            2.2
+          );
+          ctx.beginPath();
+          for (var j = 0; j < lightning.length; j++) {
+            ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          }
+          ctx.stroke();
+
+          angle += rad_step;
+
+          ctx.restore();
         }
-        ctx.stroke();
+      } else if (mode === "top") {
+        const barWidth = WIDTH / bufferLength;
+        xCoord = 0;
+        yCoord = 0;
+        // ctx.rotate(Math.PI);
 
-        angle += rad_step;
+        for (var i = 0; i < bufferLength; i++) {
+          ctx.save();
+          ctx.translate(xCoord, yCoord);
 
-        ctx.restore();
+          barHeight = dataArray[i] * 3;
+
+          const lightning = this.createLightning(
+            barHeight,
+            barHeight / 8,
+            5,
+            2.2
+          );
+          ctx.beginPath();
+          for (var j = 0; j < lightning.length; j++) {
+            ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          }
+          ctx.stroke();
+
+          xCoord += barWidth;
+
+          ctx.restore();
+        }
       }
 
       ctx.restore();
     };
     renderFrame();
   };
+
+  updateCanvas = () => {};
 
   createLightning = (height, maxDifference, minSegmentHeight, roughness) => {
     // The main segment's height
@@ -152,12 +203,12 @@ class Home extends Component {
 
   render() {
     return (
-      <>
+      <div>
         {!this.state.started && (
           <button onClick={this.setUpAudio}>Start!</button>
         )}
         <canvas ref={this.canvasRef}></canvas>
-      </>
+      </div>
     );
   }
 }
