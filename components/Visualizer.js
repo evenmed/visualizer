@@ -20,13 +20,15 @@ class Home extends Component {
     console.log(key);
     if (key == 49) this.setState({ mode: "radial" });
     else if (key == 50) this.setState({ mode: "top" });
-    else if (key == 118 || key == 86)
+    else if (key == 51) this.setState({ mode: "bottom" });
+    else if (key == 52) this.setState({ mode: "mix" });
+    else if (key == 103 || key == 71)
       this.setState({ color: "hsl(120, 100%, 77%)" });
-    else if (key == 98 || key == 66)
+    else if (key == 119 || key == 88)
       this.setState({ color: "hsl(180, 80%, 80%)" });
     else if (key == 114 || key == 82)
       this.setState({ color: "hsl(0, 100%, 77%)" });
-    else if (key == 97 || key == 65)
+    else if (key == 98 || key == 66)
       this.setState({ color: "hsl(180, 100%, 75%)" });
   };
 
@@ -131,7 +133,6 @@ class Home extends Component {
         const barWidth = WIDTH / bufferLength;
         xCoord = 0;
         yCoord = 0;
-        // ctx.rotate(Math.PI);
 
         for (var i = 0; i < bufferLength; i++) {
           ctx.save();
@@ -145,6 +146,66 @@ class Home extends Component {
             5,
             2.2
           );
+          ctx.beginPath();
+          for (var j = 0; j < lightning.length; j++) {
+            ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          }
+          ctx.stroke();
+
+          xCoord += barWidth;
+
+          ctx.restore();
+        }
+      } else if (mode === "bottom") {
+        const barWidth = WIDTH / bufferLength;
+        xCoord = 0;
+        yCoord = HEIGHT;
+
+        for (var i = 0; i < bufferLength; i++) {
+          ctx.save();
+          ctx.translate(xCoord, yCoord);
+
+          barHeight = dataArray[i] * 3;
+
+          const lightning = this.createLightning(
+            barHeight,
+            barHeight / 8,
+            5,
+            2.2
+          );
+          ctx.rotate(Math.PI);
+          ctx.beginPath();
+          for (var j = 0; j < lightning.length; j++) {
+            ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
+          }
+          ctx.stroke();
+
+          xCoord += barWidth;
+
+          ctx.restore();
+        }
+      } else if (mode === "mix") {
+        const barWidth = WIDTH / bufferLength;
+        xCoord = 0;
+        yCoord = HEIGHT;
+
+        for (var i = 0; i < bufferLength; i++) {
+          ctx.save();
+          ctx.translate(xCoord, yCoord);
+
+          barHeight = dataArray[i] * 3;
+
+          const lightning = this.createLightning(
+            barHeight,
+            barHeight / 8,
+            5,
+            2.2
+          );
+          if (i % 2 === 0) {
+            ctx.rotate(Math.PI);
+          } else {
+            ctx.translate(0, -HEIGHT);
+          }
           ctx.beginPath();
           for (var j = 0; j < lightning.length; j++) {
             ctx.lineTo(Math.round(lightning[j].x), Math.round(lightning[j].y));
