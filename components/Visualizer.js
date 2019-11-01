@@ -7,7 +7,7 @@ const StyledWrap = styled.div`
   }
 `;
 class Home extends Component {
-  state = { started: false, mode: "radial", color: "hsl(180, 80%, 80%)" };
+  state = { started: false, mode: "off", color: "hsl(180, 80%, 80%)" };
 
   constructor(props) {
     super(props);
@@ -23,7 +23,8 @@ class Home extends Component {
   }
 
   handleKeyPress = ({ keyCode: key }) => {
-    if (key == 49) this.setState({ mode: "radial" });
+    if (key == 32) this.setState({ mode: "off" });
+    else if (key == 49) this.setState({ mode: "radial" });
     else if (key == 50) this.setState({ mode: "top" });
     else if (key == 51) this.setState({ mode: "bottom" });
     else if (key == 52) this.setState({ mode: "mix" });
@@ -72,15 +73,15 @@ class Home extends Component {
     var analyser = context.createAnalyser();
 
     var canvas = this.canvasRef.current;
-    if (canvas.requestFullscreen) {
-      await canvas.requestFullscreen();
-    } else if (canvas.msRequestFullscreen) {
-      await canvas.msRequestFullscreen();
-    } else if (canvas.mozRequestFullScreen) {
-      await canvas.mozRequestFullScreen();
-    } else if (canvas.webkitRequestFullscreen) {
-      await canvas.webkitRequestFullscreen();
-    }
+    // if (canvas.requestFullscreen) {
+    //   await canvas.requestFullscreen();
+    // } else if (canvas.msRequestFullscreen) {
+    //   await canvas.msRequestFullscreen();
+    // } else if (canvas.mozRequestFullScreen) {
+    //   await canvas.mozRequestFullScreen();
+    // } else if (canvas.webkitRequestFullscreen) {
+    //   await canvas.webkitRequestFullscreen();
+    // }
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     var ctx = canvas.getContext("2d");
@@ -132,7 +133,8 @@ class Home extends Component {
           ctx.translate(xCoord, yCoord);
           ctx.rotate(-Math.PI / 2 + angle);
 
-          barHeight = dataArray[i];
+          barHeight = dataArray[i] * 2;
+          // const horizontalness = Math.abs(Math.PI / angle);
 
           const lightning = this.createLightning(
             barHeight,
@@ -152,14 +154,14 @@ class Home extends Component {
         }
       } else if (mode === "top") {
         const barWidth = WIDTH / bufferLength;
-        xCoord = 0;
+        xCoord = barWidth / 2;
         yCoord = 0;
 
         for (var i = 0; i < bufferLength; i++) {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 2;
+          barHeight = dataArray[i] * 2.5;
 
           const lightning = this.createLightning(
             barHeight,
@@ -179,14 +181,14 @@ class Home extends Component {
         }
       } else if (mode === "bottom") {
         const barWidth = WIDTH / bufferLength;
-        xCoord = 0;
+        xCoord = barWidth / 2;
         yCoord = HEIGHT;
 
         for (var i = 0; i < bufferLength; i++) {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 2;
+          barHeight = dataArray[i] * 2.5;
 
           const lightning = this.createLightning(
             barHeight,
@@ -207,14 +209,14 @@ class Home extends Component {
         }
       } else if (mode === "mix") {
         const barWidth = WIDTH / bufferLength;
-        xCoord = 0;
+        xCoord = barWidth / 2;
         yCoord = HEIGHT;
 
         for (var i = 0; i < bufferLength; i++) {
           ctx.save();
           ctx.translate(xCoord, yCoord);
 
-          barHeight = dataArray[i] * 2;
+          barHeight = dataArray[i] * 2.5;
 
           const lightning = this.createLightning(
             barHeight,
@@ -240,7 +242,7 @@ class Home extends Component {
       } else if (mode === "mix2") {
         const barWidth = HEIGHT / bufferLength;
         xCoord = 0;
-        yCoord = 0;
+        yCoord = barWidth / 2;
 
         for (var i = 0; i < bufferLength; i++) {
           ctx.save();
